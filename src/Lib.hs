@@ -7,21 +7,28 @@ module Lib
     , app
     ) where
 
-import Data.Aeson
-import Data.Aeson.TH
-import Network.Wai
-import Network.Wai.Handler.Warp
-import Servant
+import           Data.Aeson
+import           Data.Aeson.TH
+import           Network.Wai
+import           Network.Wai.Handler.Warp
+import           Servant
+import qualified Data.Time as Time
 
 data User = User
-  { userId        :: Int
-  , userFirstName :: String
-  , userLastName  :: String
+  { userId           :: Int
+  , userFirstName    :: String
+  , userLastName     :: String
+  , email            :: String
+--  , registrationDate :: Time.UTCTime
   } deriving (Eq, Show)
 
 $(deriveJSON defaultOptions ''User)
 
-type API = "users" :> Get '[JSON] [User]
+type API = "users"
+--  :> QueryParam "sortby" SortBy
+  :> Get '[JSON] [User]
+
+data SortBy = Age | Name
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -37,6 +44,6 @@ server = return users
 
 users :: [User]
 users =
-  [ User 1 "Isaac" "Newton"
-  , User 2 "Albert" "Einstein"
+  [ User 1 "Isaac" "Newton" "issac.newton@gmail.com"
+  , User 2 "Albert" "Einstein" "albert.einstein@gmail.com"
   ]
