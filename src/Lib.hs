@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -16,9 +17,11 @@ import Data.List as List
 import Data.Text
 import qualified Data.Time as Time
 import GHC.Generics
+import Lucid
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
+import Servant.HTML.Lucid
 
 data User = User
   { userId           :: Int
@@ -169,13 +172,42 @@ server3
     marketing :: ClientInfo -> Handler Email
     marketing clientInfo = return (emailForClient clientInfo)
 
-type API = UserAPI :<|> API3
+instance ToHtml User where
+  toHtml user =
+    tr_ $ do
+      td_ (toHtml $ userFirstName user)
+      td_ (toHtml $ userLastName user)
+
+  toHtmlRaw = toHtml
+
+instance ToHtml [User] where
+  toHtml users = table_ $ do
+    tr_ $ do
+      th_ (toHtml "First name")
+      th_ (toHtml "Last name")
+    foldMap toHtml users
+
+  toHtmlRaw = toHtml
+
+type Person = User
+
+persons = users
+
+type PersonAPI = "persons" :> Get '[JSON, HTML] [Person]
+
+personAPI :: Proxy PersonAPI
+personAPI = Proxy
+
+personServer :: Server PersonAPI
+personServer = return persons
+
+type API = UserAPI :<|> API3 :<|> PersonAPI
 
 api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = userServer :<|> server3
+server = userServer :<|> server3 :<|> personServer
 
 app :: Application
 app = serve api server
