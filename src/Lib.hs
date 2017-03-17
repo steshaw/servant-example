@@ -9,6 +9,7 @@ module Lib
     , app
     ) where
 
+import Control.Monad.Except
 import Data.Aeson
 -- import Data.Aeson.TH
 import Data.Monoid
@@ -102,9 +103,12 @@ users = [issac, albert]
 
 userServer :: Server UserAPI
 userServer
-     = return users
-  :<|> return albert
-  :<|> return issac
+     = do liftIO $ putStrLn "GET /users"
+          return users
+  :<|> do liftIO $ putStrLn "GET /albert"
+          return albert
+  :<|> do liftIO $ putStrLn "GET /issac"
+          return issac
 
 data Position = Position
   { xCoord :: Int
@@ -199,7 +203,9 @@ personAPI :: Proxy PersonAPI
 personAPI = Proxy
 
 personServer :: Server PersonAPI
-personServer = return persons
+personServer = do
+  liftIO $ putStrLn "GET /persons"
+  return persons
 
 type API = UserAPI :<|> API3 :<|> PersonAPI
 
