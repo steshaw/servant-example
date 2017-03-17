@@ -1,6 +1,7 @@
-{-# LANGUAGE DataKinds       #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeOperators   #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Lib
     ( startApp
@@ -8,32 +9,26 @@ module Lib
     ) where
 
 import Data.Aeson
-import Data.Aeson.TH
+-- import Data.Aeson.TH
+import Data.Monoid
+import qualified Data.Time.Calendar as Calendar
 import Data.Text
+import qualified Data.Time as Time
+import GHC.Generics
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
-import qualified Data.Time as Time
 
 data User = User
   { userId           :: Int
   , userFirstName    :: String
   , userLastName     :: String
   , email            :: String
---  , registrationDate :: Time.UTCTime
-  } deriving (Eq, Show)
+  , registrationDate :: Time.Day
+  } deriving (Eq, Show, Generic)
 
-$(deriveJSON defaultOptions ''User)
-
-type GetUsers =
-  "users" :> Get '[JSON] [User]
-  -- "GET /users" -> json user.
-
-type GetUser =
-  "user" :> Capture "userid" Integer :> Get '[JSON] User
-  -- "GET /user/:userid" -> json user.
-
-type API = GetUsers -- :<|> GetUser
+instance ToJSON User
+-- $(deriveJSON defaultOptions ''User)
 
 -- "users"
 --  :> QueryParam "sortby" SortBy
@@ -86,20 +81,39 @@ type UserAPI11 =
 
 data SortBy = Age | Name
 
-startApp :: IO ()
-startApp = run 8080 app
+type GetUsers =
+  "users" :> Get '[JSON] [User]
+  -- "GET /users" -> json user.
 
-app :: Application
-app = serve api server
+type GetUser =
+  "user" :> Capture "userid" Integer :> Get '[JSON] User
+  -- "GET /user/:userid" -> json user.
+
+type API
+    =  GetUsers
+  :<|> "albert" :> Get '[JSON] User
+  :<|> "issac" :> Get '[JSON] User
+
+issac = User 1 "Isaac" "Newton" "issac.newton@gmail.com" (Calendar.fromGregorian 1683 3 1)
+albert = User 2 "Albert" "Einstein" "albert.einstein@gmail.com" (Calendar.fromGregorian 1905 12 1)
+
+users :: [User]
+users = [issac, albert]
+
+server :: Server API
+server = return users
+    :<|> return albert
+    :<|> return issac
 
 api :: Proxy API
 api = Proxy
 
-server :: Server API
-server = return users
+app :: Application
+app = serve api server
 
-users :: [User]
-users =
-  [ User 1 "Isaac" "Newton" "issac.newton@gmail.com"
-  , User 2 "Albert" "Einstein" "albert.einstein@gmail.com"
-  ]
+port = 8080
+
+startApp :: IO ()
+startApp = do
+  putStrLn $ "Listening on " <> show port
+  run port app
