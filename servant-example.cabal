@@ -64,6 +64,22 @@ executable servant-javascript-example
                      , warp
   default-language:    Haskell2010
 
+executable servant-docs-example
+  hs-source-dirs:      docs
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , bytestring
+                     , text
+                     , http-types
+                     , wai
+                     , servant
+                     , servant-example
+                     , servant-docs
+                     , servant-server
+                     , warp
+  default-language:    Haskell2010
+
 test-suite servant-example-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
