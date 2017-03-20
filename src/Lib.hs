@@ -4,10 +4,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Lib
-    ( startApp
-    , app
-    ) where
+module Lib where
 
 import Control.Monad.Except
 import Data.Aeson
@@ -113,12 +110,12 @@ userServer
 data Position = Position
   { xCoord :: Int
   , yCoord:: Int
-  } deriving Generic
+  } deriving (Show, Generic)
 
 instance ToJSON Position
 
 newtype HelloMessage = HelloMessage { msg :: String }
-  deriving Generic
+  deriving (Show, Generic)
 
 instance ToJSON HelloMessage
 
@@ -127,7 +124,7 @@ data ClientInfo = ClientInfo
   , clientEmail :: String
   , clientAge :: Int
   , clientInterestedIn :: [String]
-  } deriving Generic
+  } deriving (Show, Generic)
 
 instance FromJSON ClientInfo
 instance ToJSON ClientInfo
@@ -137,7 +134,7 @@ data Email = Email
   , to :: String
   , subject :: String
   , body :: String
-  } deriving Generic
+  } deriving (Show, Generic)
 
 instance ToJSON Email
 
