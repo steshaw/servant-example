@@ -1,0 +1,99 @@
+name: servant-example
+version: '0.1.0.0'
+category: Example
+author: Steven Shaw
+maintainer: steven@steshaw.org
+copyright: (c) 2017, Steven Shaw
+license: BSD3
+github: steshaw/servant-example
+extra-source-files:
+- README.md
+dependencies:
+- aeson
+library:
+  source-dirs: src
+  exposed-modules:
+  - Lib
+  dependencies:
+  - base >=4.7 && <5
+  - mtl
+  - lucid
+  - servant-server
+  - servant-lucid
+  - time
+  - text
+  - wai
+  - warp
+executables:
+  servant-javascript-example:
+    main: Main.hs
+    source-dirs: javascript
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - js-jquery
+    - random
+    - servant-server
+    - servant-js
+    - text
+    - wai
+    - warp
+  servant-example:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - servant-example
+  servant-docs-example:
+    main: Main.hs
+    source-dirs: docs
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - bytestring
+    - text
+    - http-types
+    - wai
+    - servant
+    - servant-example
+    - servant-docs
+    - servant-server
+    - warp
+  servant-client-example:
+    main: Main.hs
+    source-dirs: client
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - http-client
+    - mtl
+    - servant
+    - servant-example
+    - servant-client
+tests:
+  servant-example-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - servant-example
+    - hspec
+    - hspec-wai
+    - hspec-wai-json
